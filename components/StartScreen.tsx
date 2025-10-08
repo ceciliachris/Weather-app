@@ -9,8 +9,9 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
+import Constants from "expo-constants";
 
-const OPEN_WEATHER_API_KEY = "8df6d1b3d6a14bf114eca0c33846939e";
+const OPEN_WEATHER_API_KEY = Constants.expoConfig?.extra?.OPENWEATHER_API_KEY as string;
 
 export default function StartScreen() {
   const [city, setCity] = useState("");
