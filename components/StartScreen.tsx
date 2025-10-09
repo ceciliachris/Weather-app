@@ -1,28 +1,40 @@
-import React, { useState } from "react";
+import Constants from "expo-constants";
+import { useLocalSearchParams } from "expo-router";
+import React, { useEffect, useState } from "react";
 import {
-  View,
-  Text,
-  TextInput,
+  ActivityIndicator,
+  Alert,
   Button,
   Image,
   StyleSheet,
-  ActivityIndicator,
-  Alert,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
-import Constants from "expo-constants";
+import Toast from "react-native-toast-message";
+import { saveFavorite } from "./storage";
 
 const OPEN_WEATHER_API_KEY = Constants.expoConfig?.extra?.OPENWEATHER_API_KEY as string;
 
 export default function StartScreen() {
   const [city, setCity] = useState("");
   const [loading, setLoading] = useState(false);
-
   const [weather, setWeather] = useState<{
     temp: number;
     description: string;
     icon: string;
     name: string;
   } | null>(null);
+
+  const params = useLocalSearchParams();
+
+  useEffect(() => {
+    if (params.city) {
+      const cityName = Array.isArray(params.city) ? params.city[0] : params.city;
+      setCity(cityName);
+      fetchWeather(cityName);
+    }
+  }, [params.city]);
 
   const fetchWeather = async (cityName: string) => {
     if (!cityName) {
@@ -52,6 +64,8 @@ export default function StartScreen() {
         icon: data.weather[0].icon,
         name: data.name,
       });
+
+      setCity("");
     } catch (err: any) {
       Alert.alert("Fel", err.message || "Kunde inte hämta väder.");
     } finally {
@@ -59,8 +73,8 @@ export default function StartScreen() {
     }
   };
 
-  const iconUrl = (icon: string) =>
-    `https://openweathermap.org/img/wn/${icon}@2x.png`;
+ const iconUrl = (icon: string) =>
+  `https://openweathermap.org/img/wn/${icon}@2x.png`;
 
   return (
     <View style={styles.container}>
@@ -91,16 +105,54 @@ export default function StartScreen() {
           </View>
         </View>
       )}
+
+      <Button
+        title="⭐ Lägg till favorit"
+        onPress={async () => {
+          if (!weather || !weather.name) {
+            Alert.alert(
+              "Ingen stad",
+              "Sök efter en stad först innan du lägger till den som favorit."
+            );
+            return;
+          }
+
+          await saveFavorite(weather.name);
+          Toast.show({
+            type: "success",
+            text1: `${weather.name} tillagd i favoriter`,
+            position: "bottom",
+          });
+        }}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, justifyContent: "flex-start", backgroundColor: "#fafafa" },
+  container: {
+    flex: 1,
+    padding: 20,
+    justifyContent: "flex-start",
+    backgroundColor: "#fafafa",
+  },
   title: { fontSize: 22, fontWeight: "600", marginBottom: 12 },
   input: { borderWidth: 1, borderColor: "#ddd", padding: 10, borderRadius: 8 },
-  btnRow: { marginTop: 10, flexDirection: "row", justifyContent: "space-between", width: 120 },
-  card: { marginTop: 20, padding: 16, borderRadius: 12, backgroundColor: "white", shadowColor: "#000", shadowOpacity: 0.05, elevation: 3 },
+  btnRow: {
+    marginTop: 10,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: 120,
+  },
+  card: {
+    marginTop: 20,
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: "white",
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    elevation: 3,
+  },
   cityName: { fontSize: 18, fontWeight: "700", marginBottom: 8 },
   row: { flexDirection: "row", alignItems: "center" },
   icon: { width: 64, height: 64, marginRight: 12 },
