@@ -12,7 +12,8 @@ import {
   View,
 } from "react-native";
 import Toast from "react-native-toast-message";
-import { saveFavorite } from "./storage";
+import { saveFavorite, getSettings, AppSettings } from "./storage";
+import { useFocusEffect } from "@react-navigation/native";
 
 const OPEN_WEATHER_API_KEY = Constants.expoConfig?.extra?.OPENWEATHER_API_KEY as string;
 
@@ -25,8 +26,25 @@ export default function StartScreen() {
     icon: string;
     name: string;
   } | null>(null);
+  const [settings, setSettings] = useState<AppSettings>({
+    temperatureUnit: 'celsius',
+    theme: 'light',
+    notifications: true,
+  });
 
   const params = useLocalSearchParams();
+
+  // Ladda inställningar när sidan visas
+  useFocusEffect(
+    React.useCallback(() => {
+      loadSettings();
+    }, [])
+  );
+
+  const loadSettings = async () => {
+    const saved = await getSettings();
+    setSettings(saved);
+  };
 
   useEffect(() => {
     if (params.city) {
@@ -73,15 +91,27 @@ export default function StartScreen() {
     }
   };
 
- const iconUrl = (icon: string) =>
-  `https://openweathermap.org/img/wn/${icon}@2x.png`;
+  // Konvertera temperatur baserat på inställning
+  const displayTemp = (tempCelsius: number) => {
+    if (settings.temperatureUnit === 'fahrenheit') {
+      const fahrenheit = Math.round((tempCelsius * 9/5) + 32);
+      return `${fahrenheit}°F`;
+    }
+    return `${tempCelsius}°C`;
+  };
+
+  const iconUrl = (icon: string) =>
+    `https://openweathermap.org/img/wn/${icon}@2x.png`;
+
+  const isDark = settings.theme === 'dark';
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Väderappen — Huvudsida</Text>
+    <View style={[styles.container, isDark && styles.containerDark]}>
+      <Text style={[styles.title, isDark && styles.textDark]}>Väderappen — Huvudsida</Text>
       <TextInput
-        style={styles.input}
+        style={[styles.input, isDark && styles.inputDark]}
         placeholder="Skriv stad (t.ex. Stockholm)"
+        placeholderTextColor={isDark ? "#999" : "#666"}
         value={city}
         onChangeText={setCity}
         onSubmitEditing={() => fetchWeather(city)}
@@ -94,13 +124,15 @@ export default function StartScreen() {
       {loading && <ActivityIndicator size="large" style={{ marginTop: 20 }} />}
 
       {weather && (
-        <View style={styles.card}>
-          <Text style={styles.cityName}>{weather.name}</Text>
+        <View style={[styles.card, isDark && styles.cardDark]}>
+          <Text style={[styles.cityName, isDark && styles.textDark]}>{weather.name}</Text>
           <View style={styles.row}>
             <Image source={{ uri: iconUrl(weather.icon) }} style={styles.icon} />
             <View>
-              <Text style={styles.temp}>{weather.temp}°C</Text>
-              <Text style={styles.desc}>{weather.description}</Text>
+              <Text style={[styles.temp, isDark && styles.textDark]}>
+                {displayTemp(weather.temp)}
+              </Text>
+              <Text style={[styles.desc, isDark && styles.textDark]}>{weather.description}</Text>
             </View>
           </View>
         </View>
@@ -136,8 +168,26 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     backgroundColor: "#fafafa",
   },
-  title: { fontSize: 22, fontWeight: "600", marginBottom: 12 },
-  input: { borderWidth: 1, borderColor: "#ddd", padding: 10, borderRadius: 8 },
+  containerDark: {
+    backgroundColor: "#1a1a1a",
+  },
+  textDark: {
+    color: "#fff",
+  },
+  title: { fontSize: 22, fontWeight: "600", marginBottom: 12, color: "#000" },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    padding: 10,
+    borderRadius: 8,
+    backgroundColor: "white",
+    color: "#000",
+  },
+  inputDark: {
+    backgroundColor: "#2a2a2a",
+    borderColor: "#444",
+    color: "#fff",
+  },
   btnRow: {
     marginTop: 10,
     flexDirection: "row",
@@ -153,9 +203,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     elevation: 3,
   },
-  cityName: { fontSize: 18, fontWeight: "700", marginBottom: 8 },
+  cardDark: {
+    backgroundColor: "#2a2a2a",
+  },
+  cityName: { fontSize: 18, fontWeight: "700", marginBottom: 8, color: "#000" },
   row: { flexDirection: "row", alignItems: "center" },
   icon: { width: 64, height: 64, marginRight: 12 },
-  temp: { fontSize: 28, fontWeight: "700" },
-  desc: { textTransform: "capitalize", marginTop: 4 },
+  temp: { fontSize: 28, fontWeight: "700", color: "#000" },
+  desc: { textTransform: "capitalize", marginTop: 4, color: "#000" },
 });
