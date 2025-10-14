@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, View, Switch, TouchableOpacity, Alert } from "react-native";
 import { AppSettings, getSettings, updateSetting } from "@/components/storage";
+import React, { useEffect, useState } from "react";
+import { StyleSheet, Switch, Text, TouchableOpacity, View } from "react-native";
 
 export default function Settings() {
   const [settings, setSettings] = useState<AppSettings>({
@@ -28,7 +28,6 @@ export default function Settings() {
     const newTheme = settings.theme === 'light' ? 'dark' : 'light';
     await updateSetting('theme', newTheme);
     setSettings({ ...settings, theme: newTheme });
-    Alert.alert("Tema ändrat", "Starta om appen för att se det nya temat.");
   };
 
   const handleToggleNotifications = async () => {
@@ -78,7 +77,6 @@ export default function Settings() {
         </View>
       </View>
 
-      {/* NOTIFIKATIONER */}
       <View style={[styles.card, isDark && styles.cardDark]}>
         <View style={styles.row}>
           <View>
@@ -95,10 +93,6 @@ export default function Settings() {
           />
         </View>
       </View>
-
-      <Text style={[styles.info, isDark && styles.textDark]}>
-        💡 Tips: Temperaturenheten uppdateras direkt på huvudsidan!
-      </Text>
     </View>
   );
 }
@@ -107,31 +101,37 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: "#fafafa",
+    backgroundColor: "#f5f7fa",
   },
   containerDark: {
-    backgroundColor: "#1a1a1a",
+    backgroundColor: "#0d1117",
   },
   title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
-    color: "#000",
+    fontSize: 28,
+    fontWeight: "700",
+    marginBottom: 24,
+    color: "#1a1a1a",
+    letterSpacing: -0.5,
   },
   textDark: {
     color: "#fff",
   },
   card: {
     backgroundColor: "white",
-    padding: 16,
-    borderRadius: 12,
+    padding: 18,
+    borderRadius: 14,
     marginBottom: 16,
     shadowColor: "#000",
-    shadowOpacity: 0.05,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
     elevation: 3,
+    borderWidth: 1,
+    borderColor: "#f0f0f0",
   },
   cardDark: {
-    backgroundColor: "#2a2a2a",
+    backgroundColor: "#161b22",
+    borderColor: "#30363d",
   },
   row: {
     flexDirection: "row",
@@ -141,21 +141,26 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#000",
+    color: "#1a1a1a",
   },
   sublabel: {
     fontSize: 14,
     color: "#666",
-    marginTop: 4,
+    marginTop: 6,
   },
   sublabelDark: {
-    color: "#aaa",
+    color: "#8b949e",
   },
   button: {
     backgroundColor: "#007AFF",
-    paddingHorizontal: 16,
+    paddingHorizontal: 18,
     paddingVertical: 10,
-    borderRadius: 8,
+    borderRadius: 10,
+    shadowColor: "#007AFF",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
   },
   buttonText: {
     color: "white",
@@ -163,9 +168,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   info: {
-    marginTop: 20,
-    fontSize: 14,
+    marginTop: 24,
+    fontSize: 15,
     color: "#666",
     textAlign: "center",
+    fontStyle: "italic",
   },
 });
