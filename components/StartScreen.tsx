@@ -6,7 +6,6 @@ import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
-  Button,
   Image,
   StyleSheet,
   Text,
@@ -14,6 +13,7 @@ import {
   View,
 } from "react-native";
 import Toast from "react-native-toast-message";
+import CustomButton from "./CustomButton";
 import { AppSettings, getSettings, saveFavorite } from "./storage";
 
 const OPEN_WEATHER_API_KEY =
@@ -163,8 +163,8 @@ export default function StartScreen() {
       />
 
       <View style={styles.btnRow}>
-        <Button title="Sök" onPress={() => fetchWeather(city)} />
-        <Button title="📍 Använd min plats" onPress={getWeatherByLocation} />
+        <CustomButton title="Sök" onPress={() => fetchWeather(city)} />
+        <CustomButton title="📍 Använd min plats" onPress={getWeatherByLocation} />
       </View>
 
       {loading && <ActivityIndicator size="large" style={{ marginTop: 20 }} />}
@@ -186,7 +186,7 @@ export default function StartScreen() {
             </View>
           </View>
           
-          <Button
+          <CustomButton
             title="⭐ Lägg till favorit"
             onPress={async () => {
               await saveFavorite(weather.name);
