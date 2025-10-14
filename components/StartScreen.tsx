@@ -1,4 +1,6 @@
+import { useFocusEffect } from "@react-navigation/native";
 import Constants from "expo-constants";
+import * as Location from "expo-location";
 import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -12,10 +14,10 @@ import {
   View,
 } from "react-native";
 import Toast from "react-native-toast-message";
-import { saveFavorite, getSettings, AppSettings } from "./storage";
-import { useFocusEffect } from "@react-navigation/native";
+import { AppSettings, getSettings, saveFavorite } from "./storage";
 
-const OPEN_WEATHER_API_KEY = Constants.expoConfig?.extra?.OPENWEATHER_API_KEY as string;
+const OPEN_WEATHER_API_KEY =
+  Constants.expoConfig?.extra?.OPENWEATHER_API_KEY as string;
 
 export default function StartScreen() {
   const [city, setCity] = useState("");
@@ -27,14 +29,13 @@ export default function StartScreen() {
     name: string;
   } | null>(null);
   const [settings, setSettings] = useState<AppSettings>({
-    temperatureUnit: 'celsius',
-    theme: 'light',
+    temperatureUnit: "celsius",
+    theme: "light",
     notifications: true,
   });
 
   const params = useLocalSearchParams();
 
-  // Ladda inställningar när sidan visas
   useFocusEffect(
     React.useCallback(() => {
       loadSettings();
@@ -48,7 +49,9 @@ export default function StartScreen() {
 
   useEffect(() => {
     if (params.city) {
-      const cityName = Array.isArray(params.city) ? params.city[0] : params.city;
+      const cityName = Array.isArray(params.city)
+        ? params.city[0]
+        : params.city;
       setCity(cityName);
       fetchWeather(cityName);
     }
@@ -91,10 +94,49 @@ export default function StartScreen() {
     }
   };
 
-  // Konvertera temperatur baserat på inställning
+  const getWeatherByLocation = async () => {
+    try {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("Behörighet nekad", "Kan inte hämta plats utan tillstånd.");
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Highest,
+      });
+      const { latitude, longitude } = location.coords;
+
+      console.log("GPS-koordinater:", latitude, longitude);
+
+      setLoading(true);
+      setWeather(null);
+
+      const url = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${OPEN_WEATHER_API_KEY}&units=metric&lang=sv`;
+      const res = await fetch(url);
+
+      if (!res.ok) throw new Error("Kunde inte hämta väder.");
+
+      const data = await res.json();
+
+      setWeather({
+        temp: Math.round(data.main.temp),
+        description: data.weather[0].description,
+        icon: data.weather[0].icon,
+        name: data.name,
+      });
+
+      setCity(data.name);
+    } catch (err: any) {
+      Alert.alert("Fel", err.message || "Kunde inte hämta plats.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const displayTemp = (tempCelsius: number) => {
-    if (settings.temperatureUnit === 'fahrenheit') {
-      const fahrenheit = Math.round((tempCelsius * 9/5) + 32);
+    if (settings.temperatureUnit === "fahrenheit") {
+      const fahrenheit = Math.round((tempCelsius * 9) / 5 + 32);
       return `${fahrenheit}°F`;
     }
     return `${tempCelsius}°C`;
@@ -103,11 +145,14 @@ export default function StartScreen() {
   const iconUrl = (icon: string) =>
     `https://openweathermap.org/img/wn/${icon}@2x.png`;
 
-  const isDark = settings.theme === 'dark';
+  const isDark = settings.theme === "dark";
 
   return (
     <View style={[styles.container, isDark && styles.containerDark]}>
-      <Text style={[styles.title, isDark && styles.textDark]}>Väderappen — Huvudsida</Text>
+      <Text style={[styles.title, isDark && styles.textDark]}>
+        Väderappen — Huvudsida
+      </Text>
+
       <TextInput
         style={[styles.input, isDark && styles.inputDark]}
         placeholder="Skriv stad (t.ex. Stockholm)"
@@ -117,22 +162,28 @@ export default function StartScreen() {
         onSubmitEditing={() => fetchWeather(city)}
         returnKeyType="search"
       />
+
       <View style={styles.btnRow}>
         <Button title="Sök" onPress={() => fetchWeather(city)} />
+        <Button title="📍 Använd min plats" onPress={getWeatherByLocation} />
       </View>
 
       {loading && <ActivityIndicator size="large" style={{ marginTop: 20 }} />}
 
       {weather && (
         <View style={[styles.card, isDark && styles.cardDark]}>
-          <Text style={[styles.cityName, isDark && styles.textDark]}>{weather.name}</Text>
+          <Text style={[styles.cityName, isDark && styles.textDark]}>
+            {weather.name}
+          </Text>
           <View style={styles.row}>
             <Image source={{ uri: iconUrl(weather.icon) }} style={styles.icon} />
             <View>
               <Text style={[styles.temp, isDark && styles.textDark]}>
                 {displayTemp(weather.temp)}
               </Text>
-              <Text style={[styles.desc, isDark && styles.textDark]}>{weather.description}</Text>
+              <Text style={[styles.desc, isDark && styles.textDark]}>
+                {weather.description}
+              </Text>
             </View>
           </View>
         </View>
@@ -192,7 +243,8 @@ const styles = StyleSheet.create({
     marginTop: 10,
     flexDirection: "row",
     justifyContent: "space-between",
-    width: 120,
+    width: "100%",
+    gap: 10,
   },
   card: {
     marginTop: 20,
