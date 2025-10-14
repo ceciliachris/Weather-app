@@ -52,7 +52,6 @@ export default function StartScreen() {
       const cityName = Array.isArray(params.city)
         ? params.city[0]
         : params.city;
-      setCity(cityName);
       fetchWeather(cityName);
     }
   }, [params.city]);
@@ -102,15 +101,15 @@ export default function StartScreen() {
         return;
       }
 
+      setLoading(true);
+      setWeather(null);
+
       let location = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.Highest,
       });
       const { latitude, longitude } = location.coords;
 
       console.log("GPS-koordinater:", latitude, longitude);
-
-      setLoading(true);
-      setWeather(null);
 
       const url = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${OPEN_WEATHER_API_KEY}&units=metric&lang=sv`;
       const res = await fetch(url);
@@ -126,7 +125,7 @@ export default function StartScreen() {
         name: data.name,
       });
 
-      setCity(data.name);
+      setCity("");
     } catch (err: any) {
       Alert.alert("Fel", err.message || "Kunde inte hämta plats.");
     } finally {
@@ -186,28 +185,20 @@ export default function StartScreen() {
               </Text>
             </View>
           </View>
+          
+          <Button
+            title="⭐ Lägg till favorit"
+            onPress={async () => {
+              await saveFavorite(weather.name);
+              Toast.show({
+                type: "success",
+                text1: `${weather.name} tillagd i favoriter`,
+                position: "bottom",
+              });
+            }}
+          />
         </View>
       )}
-
-      <Button
-        title="⭐ Lägg till favorit"
-        onPress={async () => {
-          if (!weather || !weather.name) {
-            Alert.alert(
-              "Ingen stad",
-              "Sök efter en stad först innan du lägger till den som favorit."
-            );
-            return;
-          }
-
-          await saveFavorite(weather.name);
-          Toast.show({
-            type: "success",
-            text1: `${weather.name} tillagd i favoriter`,
-            position: "bottom",
-          });
-        }}
-      />
     </View>
   );
 }
