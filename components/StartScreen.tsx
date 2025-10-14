@@ -149,7 +149,7 @@ export default function StartScreen() {
   return (
     <View style={[styles.container, isDark && styles.containerDark]}>
       <Text style={[styles.title, isDark && styles.textDark]}>
-        Väderappen — Huvudsida
+        Väderapp
       </Text>
 
       <TextInput
@@ -208,50 +208,92 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     justifyContent: "flex-start",
-    backgroundColor: "#fafafa",
+    backgroundColor: "#f5f7fa",
   },
   containerDark: {
-    backgroundColor: "#1a1a1a",
+    backgroundColor: "#0d1117",
   },
   textDark: {
     color: "#fff",
   },
-  title: { fontSize: 22, fontWeight: "600", marginBottom: 12, color: "#000" },
+  title: { 
+    fontSize: 28, 
+    fontWeight: "700", 
+    marginBottom: 20, 
+    color: "#1a1a1a",
+    letterSpacing: -0.5,
+  },
   input: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    padding: 10,
-    borderRadius: 8,
+    borderWidth: 1.5,
+    borderColor: "#e1e4e8",
+    padding: 14,
+    borderRadius: 12,
     backgroundColor: "white",
     color: "#000",
+    fontSize: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
   },
   inputDark: {
-    backgroundColor: "#2a2a2a",
-    borderColor: "#444",
+    backgroundColor: "#161b22",
+    borderColor: "#30363d",
     color: "#fff",
   },
   btnRow: {
-    marginTop: 10,
+    marginTop: 16,
     flexDirection: "row",
     justifyContent: "space-between",
     width: "100%",
-    gap: 10,
+    gap: 12,
   },
   card: {
-    marginTop: 20,
-    padding: 16,
-    borderRadius: 12,
+    marginTop: 24,
+    padding: 20,
+    borderRadius: 16,
     backgroundColor: "white",
     shadowColor: "#000",
-    shadowOpacity: 0.05,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 5,
+    borderWidth: 1,
+    borderColor: "#f0f0f0",
   },
   cardDark: {
-    backgroundColor: "#2a2a2a",
+    backgroundColor: "#161b22",
+    borderColor: "#30363d",
   },
-  cityName: { fontSize: 18, fontWeight: "700", marginBottom: 8, color: "#000" },
-  row: { flexDirection: "row", alignItems: "center" },
-  icon: { width: 64, height: 64, marginRight: 12 },
-  temp: { fontSize: 28, fontWeight: "700", color: "#000" },
-  desc: { textTransform: "capitalize", marginTop: 4, color: "#000" },
+  cityName: { 
+    fontSize: 24, 
+    fontWeight: "700", 
+    marginBottom: 12, 
+    color: "#1a1a1a",
+    letterSpacing: -0.5,
+  },
+  row: { 
+    flexDirection: "row", 
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  icon: { 
+    width: 80, 
+    height: 80, 
+    marginRight: 16,
+  },
+  temp: { 
+    fontSize: 42, 
+    fontWeight: "800", 
+    color: "#007AFF",
+    letterSpacing: -1,
+  },
+  desc: { 
+    textTransform: "capitalize", 
+    marginTop: 6, 
+    color: "#666",
+    fontSize: 16,
+    fontWeight: "500",
+  },
 });
