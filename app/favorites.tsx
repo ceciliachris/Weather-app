@@ -1,6 +1,6 @@
-import { getFavorites, removeFavorite, getSettings, AppSettings } from "@/components/storage";
-import { useRouter } from "expo-router";
+import { AppSettings, getFavorites, getSettings, removeFavorite } from "@/components/storage";
 import { useFocusEffect } from "@react-navigation/native";
+import { useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
 import { Button, FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -60,44 +60,54 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: "#fafafa",
+    backgroundColor: "#f5f7fa",
   },
   containerDark: {
-    backgroundColor: "#1a1a1a",
+    backgroundColor: "#0d1117",
   },
   textDark: {
     color: "#fff",
   },
   title: {
-    fontSize: 22,
-    fontWeight: "bold",
-    marginBottom: 10,
-    color: "#000",
+    fontSize: 28,
+    fontWeight: "700",
+    marginBottom: 20,
+    color: "#1a1a1a",
+    letterSpacing: -0.5,
   },
   empty: {
     fontSize: 16,
     color: "#666",
+    textAlign: "center",
+    marginTop: 40,
+    fontStyle: "italic",
   },
   item: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginVertical: 8,
-    padding: 12,
+    padding: 16,
     backgroundColor: "white",
-    borderRadius: 8,
+    borderRadius: 12,
     shadowColor: "#000",
-    shadowOpacity: 0.05,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: "#f0f0f0",
   },
   itemDark: {
-    backgroundColor: "#2a2a2a",
+    backgroundColor: "#161b22",
+    borderColor: "#30363d",
   },
   city: {
     fontSize: 18,
+    fontWeight: "600",
     color: "#007AFF",
   },
   cityDark: {
-    color: "#4A9EFF",
+    color: "#58a6ff",
   },
 });
