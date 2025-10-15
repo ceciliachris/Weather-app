@@ -1,8 +1,9 @@
+import CustomButton from "@/components/CustomButton";
 import { AppSettings, getFavorites, getSettings, removeFavorite } from "@/components/storage";
 import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
-import { Button, FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function FavoritesScreen() {
   const [favorites, setFavorites] = useState<string[]>([]);
@@ -44,10 +45,17 @@ export default function FavoritesScreen() {
           keyExtractor={(item) => item}
           renderItem={({ item }) => (
             <View style={[styles.item, isDark && styles.itemDark]}>
-              <TouchableOpacity onPress={() => router.push(`/?city=${item}`)}>
+              <TouchableOpacity
+                onPress={() => router.push(`/?city=${item}`)}
+                style={{ flex: 1 }}
+              >
                 <Text style={[styles.city, isDark && styles.cityDark]}>{item}</Text>
               </TouchableOpacity>
-              <Button title="Ta bort" onPress={() => handleRemove(item)} color="#FF3B30" />
+              <CustomButton
+                title="Ta bort"
+                onPress={() => handleRemove(item)}
+                variant="danger"
+              />
             </View>
           )}
         />
