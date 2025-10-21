@@ -1,5 +1,6 @@
 import CustomButton from "@/components/CustomButton";
-import { AppSettings, getFavorites, getSettings, removeFavorite } from "@/components/storage";
+import { getFavorites, removeFavorite } from "@/services/favorites";
+import { useSettings } from "@/hooks/useSettings";
 import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
@@ -7,38 +8,32 @@ import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native
 
 export default function FavoritesScreen() {
   const [favorites, setFavorites] = useState<string[]>([]);
-  const [settings, setSettings] = useState<AppSettings>({
-    temperatureUnit: 'celsius',
-    theme: 'light',
-    notifications: true,
-  });
+  const { isDark } = useSettings();
   const router = useRouter();
 
-  const loadData = async () => {
+  const loadFavorites = async () => {
     const favs = await getFavorites();
-    const saved = await getSettings();
     setFavorites(favs);
-    setSettings(saved);
   };
 
   useFocusEffect(
     useCallback(() => {
-      loadData();
+      loadFavorites();
     }, [])
   );
 
   const handleRemove = async (city: string) => {
     await removeFavorite(city);
-    loadData();
+    loadFavorites();
   };
-
-  const isDark = settings.theme === 'dark';
 
   return (
     <View style={[styles.container, isDark && styles.containerDark]}>
       <Text style={[styles.title, isDark && styles.textDark]}>Favoritstäder</Text>
       {favorites.length === 0 ? (
-        <Text style={[styles.empty, isDark && styles.textDark]}>Inga favoriter ännu.</Text>
+        <Text style={[styles.empty, isDark && styles.textDark]}>
+          Inga favoriter ännu.
+        </Text>
       ) : (
         <FlatList
           data={favorites}
@@ -49,7 +44,9 @@ export default function FavoritesScreen() {
                 onPress={() => router.push(`/?city=${item}`)}
                 style={{ flex: 1 }}
               >
-                <Text style={[styles.city, isDark && styles.cityDark]}>{item}</Text>
+                <Text style={[styles.city, isDark && styles.cityDark]}>
+                  {item}
+                </Text>
               </TouchableOpacity>
               <CustomButton
                 title="Ta bort"
