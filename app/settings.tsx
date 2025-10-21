@@ -1,42 +1,23 @@
-import { AppSettings, getSettings, updateSetting } from "@/components/storage";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { StyleSheet, Switch, Text, TouchableOpacity, View } from "react-native";
+import { useSettings } from "@/hooks/useSettings";
 
 export default function Settings() {
-  const [settings, setSettings] = useState<AppSettings>({
-    temperatureUnit: 'celsius',
-    theme: 'light',
-    notifications: true,
-  });
-
-  useEffect(() => {
-    loadSettings();
-  }, []);
-
-  const loadSettings = async () => {
-    const saved = await getSettings();
-    setSettings(saved);
-  };
+  const { settings, updateSettings, isDark } = useSettings();
 
   const handleToggleUnit = async () => {
     const newUnit = settings.temperatureUnit === 'celsius' ? 'fahrenheit' : 'celsius';
-    await updateSetting('temperatureUnit', newUnit);
-    setSettings({ ...settings, temperatureUnit: newUnit });
+    await updateSettings('temperatureUnit', newUnit);
   };
 
   const handleToggleTheme = async () => {
     const newTheme = settings.theme === 'light' ? 'dark' : 'light';
-    await updateSetting('theme', newTheme);
-    setSettings({ ...settings, theme: newTheme });
+    await updateSettings('theme', newTheme);
   };
 
   const handleToggleNotifications = async () => {
-    const newValue = !settings.notifications;
-    await updateSetting('notifications', newValue);
-    setSettings({ ...settings, notifications: newValue });
+    await updateSettings('notifications', !settings.notifications);
   };
-
-  const isDark = settings.theme === 'dark';
 
   return (
     <View style={[styles.container, isDark && styles.containerDark]}>
@@ -46,7 +27,9 @@ export default function Settings() {
       <View style={[styles.card, isDark && styles.cardDark]}>
         <View style={styles.row}>
           <View>
-            <Text style={[styles.label, isDark && styles.textDark]}>Temperaturenhet</Text>
+            <Text style={[styles.label, isDark && styles.textDark]}>
+              Temperaturenhet
+            </Text>
             <Text style={[styles.sublabel, isDark && styles.sublabelDark]}>
               Nuvarande: {settings.temperatureUnit === 'celsius' ? 'Celsius (°C)' : 'Fahrenheit (°F)'}
             </Text>
@@ -77,10 +60,13 @@ export default function Settings() {
         </View>
       </View>
 
+      {/* NOTIFIKATIONER */}
       <View style={[styles.card, isDark && styles.cardDark]}>
         <View style={styles.row}>
           <View>
-            <Text style={[styles.label, isDark && styles.textDark]}>Notifikationer</Text>
+            <Text style={[styles.label, isDark && styles.textDark]}>
+              Notifikationer
+            </Text>
             <Text style={[styles.sublabel, isDark && styles.sublabelDark]}>
               Få väderuppdateringar
             </Text>
@@ -166,12 +152,5 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "600",
     fontSize: 16,
-  },
-  info: {
-    marginTop: 24,
-    fontSize: 15,
-    color: "#666",
-    textAlign: "center",
-    fontStyle: "italic",
   },
 });
